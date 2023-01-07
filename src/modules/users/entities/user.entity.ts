@@ -11,6 +11,12 @@ export class User {
   @Column()
   public hashedPassword: string;
 
+  @Column({ nullable: true })
+  public address: string;
+  
+  @Column({ type: "point", nullable: true })
+  public coordinates!: string;
+
   @CreateDateColumn()
   public createdAt: Date;
 
