@@ -17,7 +17,6 @@ export class FarmsController {
 
     public async list(req: CustomRequest, res: Response, next: NextFunction) {
         try {
-            console.log(req.query);
             const user = await this.usersService.findOneBy({ id: req.token.id });
             if(!user) throw new NotFoundError("User no found");
             const farms = await this.farmsService.list(user, req.query as unknown as ListFarmDto); // req.query as ListFarmDto

@@ -14,7 +14,6 @@ function dtoValidationMiddleware(type: any, requestSection: string, skipMissingP
           const dtoErrors = errors.map((error: ValidationError) =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             (Object as any).values(error.constraints)).join(", ");
-            console.log(dtoErrors);
           next(new BadRequestError(dtoErrors));
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
