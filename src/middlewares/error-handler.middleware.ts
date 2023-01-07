@@ -6,6 +6,10 @@ export function handleErrorMiddleware(error: Error, _: Request, res: Response, n
 
   if (error instanceof UnprocessableEntityError) {
     res.status(422).send({ name: "UnprocessableEntityError", message });
+  } else if(error instanceof ForbiddenError) {
+    res.status(403).send({ name: "Forbidden", message });
+  } else if(error instanceof UnauthorizedError) {
+    res.status(401).send({ name: "Unauthorized", message });
   } else {
     res.status(500).send({ message: "Internal Server Error" });
   }
