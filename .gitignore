@@ -116,3 +116,9 @@ dist
 
 # IDE - VSCode
 .vscode/*
+
+.env.test
+
+.eslintrc.js
+
+.prettierrc.js
