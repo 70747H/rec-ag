@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsNumberString, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateFarmDto {
   @IsString()
@@ -10,11 +10,11 @@ export class CreateFarmDto {
   @IsNotEmpty()
   public address: string;
 
-  @IsNumberString()
+  @IsString()
   @IsNotEmpty()
   public size: string;
 
-  @IsNumberString()
+  @IsNumber()
   @Transform(({ value} ) => Number(value))
   public yield: number;
 }

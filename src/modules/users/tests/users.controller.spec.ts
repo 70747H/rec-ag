@@ -7,6 +7,7 @@ import ds from "orm/orm.config";
 import supertest, { SuperAgentTest } from "supertest";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UsersService } from "../users.service";
+import { SharedService } from "modules/shared/shared.service";
 
 describe("UsersController", () => {
   let app: Express;
@@ -39,7 +40,8 @@ describe("UsersController", () => {
     const createUserDto: CreateUserDto = { email: "user@test.com", password: "password", address: "kunt furbo" };
 
     it("should create new user", async () => {
-      const res = await agent.post("/api/users").send(createUserDto);
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
+      const res = await agent.post("/api/v1/users").send(createUserDto);
 
       expect(res.statusCode).toBe(201);
       expect(res.body).toMatchObject({
@@ -51,9 +53,10 @@ describe("UsersController", () => {
     });
 
     it("should throw UnprocessableEntityError if user already exists", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       await usersService.createUser(createUserDto);
 
-      const res = await agent.post("/api/users").send(createUserDto);
+      const res = await agent.post("/api/v1/users").send(createUserDto);
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({

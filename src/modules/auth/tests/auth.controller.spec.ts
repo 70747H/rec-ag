@@ -9,6 +9,7 @@ import { setupServer } from "server/server";
 import { disconnectAndClearDatabase } from "helpers/utils";
 import { LoginUserDto } from "../dto/login-user.dto";
 import { AccessToken } from "../entities/access-token.entity";
+import { SharedService } from "modules/shared/shared.service";
 
 describe("AuthController", () => {
   let app: Express;
@@ -31,9 +32,11 @@ describe("AuthController", () => {
     agent = supertest.agent(app);
 
     usersService = new UsersService();
+    SharedService.getGeo = jest.fn();
   });
 
   afterEach(async () => {
+    jest.resetAllMocks();
     await disconnectAndClearDatabase(ds);
   });
 
@@ -42,9 +45,10 @@ describe("AuthController", () => {
     const loginDto: LoginUserDto = { email: "user@test.com", password: "password" };
 
     it("should login existing user", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       await createUser({ ...loginDto, address: "kunt furbo" });
 
-      const res = await agent.post("/api/auth/login").send(loginDto);
+      const res = await agent.post("/api/v1/auth/login").send(loginDto);
       const { token } = res.body as AccessToken;
 
       expect(res.statusCode).toBe(201);
@@ -52,19 +56,20 @@ describe("AuthController", () => {
     });
 
     it("should throw UnprocessableEntityError when user logs in with invalid email", async () => {
-      const res = await agent.post("/api/auth/login").send({ email: "invalidEmail", password: "pwd" });
+      const res = await agent.post("/api/v1/auth/login").send({ email: "invalidEmail", password: "pwd" });
 
-      expect(res.statusCode).toBe(422);
+      expect(res.statusCode).toBe(400);
       expect(res.body).toMatchObject({
-        name: "UnprocessableEntityError",
-        message: "Invalid user email or password",
+        name: "BadRequestError",
+        message: "email must be an email",
       });
     });
 
     it("should throw UnprocessableEntityError when user logs in with invalid password", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       await createUser({ ...loginDto, address: "kunt furbo"});
 
-      const res = await agent.post("/api/auth/login").send({ email: loginDto.email, password: "invalidPassword" });
+      const res = await agent.post("/api/v1/auth/login").send({ email: loginDto.email, password: "invalidPassword" });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({

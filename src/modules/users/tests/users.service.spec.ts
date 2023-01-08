@@ -7,6 +7,7 @@ import http, { Server } from "http";
 import ds from "orm/orm.config";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { User } from "../entities/user.entity";
+import { SharedService } from "modules/shared/shared.service";
 import { UsersService } from "../users.service";
 
 describe("UsersController", () => {
@@ -37,16 +38,19 @@ describe("UsersController", () => {
     const createUserDto: CreateUserDto = { email: "user@test.com", password: "password", address: "kunt furbo" };
 
     it("should create new user", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       const createdUser = await usersService.createUser(createUserDto);
       expect(createdUser).toBeInstanceOf(User);
     });
 
     describe("with existing user", () => {
       beforeEach(async () => {
+        jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
         await usersService.createUser(createUserDto);
       });
 
       it("should throw UnprocessableEntityError if user already exists", async () => {
+        jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
         await usersService.createUser(createUserDto).catch((error: UnprocessableEntityError) => {
           expect(error).toBeInstanceOf(UnprocessableEntityError);
           expect(error.message).toBe("A user for the email already exists");
@@ -59,10 +63,11 @@ describe("UsersController", () => {
     const createUserDto: CreateUserDto = { email: "user@test.com", password: "password", address: "kunt furbo" };
 
     it("should get user by provided param", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       const user = await usersService.createUser(createUserDto);
       const foundUser = await usersService.findOneBy({ email: user.email });
 
-      expect(foundUser).toMatchObject(user);
+      expect(foundUser).toMatchObject({ ...user, coordinates: { x: 234, y: 324 } });
     });
 
     it("should return null if user not found by provided param", async () => {

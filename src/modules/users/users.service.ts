@@ -14,7 +14,7 @@ export class UsersService {
     this.usersRepository = dataSource.getRepository(User);
   }
 
-  public async createUser(data: CreateUserDto): Promise<any> {
+  public async createUser(data: CreateUserDto): Promise<User> {
     const { email, password, address } = data;
 
     const existingUser = await this.findOneBy({ email: email });

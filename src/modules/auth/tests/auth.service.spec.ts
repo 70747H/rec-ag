@@ -9,6 +9,7 @@ import ds from "orm/orm.config";
 import { AuthService } from "../auth.service";
 import { LoginUserDto } from "../dto/login-user.dto";
 import http, { Server } from "http";
+import { SharedService } from "modules/shared/shared.service";
 
 describe("AuthService", () => {
   let app: Express;
@@ -41,6 +42,7 @@ describe("AuthService", () => {
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
 
     it("should create access token for existing user", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       await createUser({ ...loginDto, address: "kunt furbo"});
 
       const { token } = await authService.login(loginDto);
@@ -56,6 +58,7 @@ describe("AuthService", () => {
     });
 
     it("should throw UnprocessableEntityError when user logs in with invalid password", async () => {
+      jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
       await createUser({ ...loginDto, address: "kunt furbo"});
 
       await authService.login({ email: loginDto.email, password: "invalidPassword" }).catch((error: UnprocessableEntityError) => {
