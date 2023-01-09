@@ -5,20 +5,20 @@ export class UpdateFarmDto {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  public name: string;
+  public name?: string;
 
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  public address: string;
+  public address?: string;
 
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  public size: string;
+  public size?: string;
 
   @IsNumberString()
   @Transform(({ value} ) => Number(value))
   @IsOptional()
-  public yield: number;
+  public yield?: number;
 }

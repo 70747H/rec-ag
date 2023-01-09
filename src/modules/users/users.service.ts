@@ -1,6 +1,6 @@
 import * as bcrypt from "bcrypt";
 import config from "config/config";
-import { UnprocessableEntityError } from "errors/errors";
+import { NotFoundError, UnprocessableEntityError } from "errors/errors";
 import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
@@ -24,7 +24,12 @@ export class UsersService {
 
     const userData: DeepPartial<User> = { email, hashedPassword, address };
     const geo = (await SharedService.getGeo(address)).data.results[0].geometry.location;
-    userData.coordinates = `(${geo.lat},${geo.lng})`
+    if(!geo) {
+      throw new NotFoundError("couldn't find address")
+    } else {
+      userData.coordinates = `(${geo.lat},${geo.lng})`
+    }
+    
     const newUser = this.usersRepository.create(userData);
     return this.usersRepository.save(newUser);
   }

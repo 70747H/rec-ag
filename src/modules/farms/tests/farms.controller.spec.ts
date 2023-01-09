@@ -5,15 +5,16 @@ import { disconnectAndClearDatabase } from "helpers/utils";
 import http, { Server } from "http";
 import ds from "orm/orm.config";
 import supertest, { SuperAgentTest } from "supertest";
-import { CreateFarmDto } from "./dto/create-farm-dto";
+import { CreateFarmDto } from "../dto/create-farm-dto";
 import { CreateUserDto } from "modules/users/dto/create-user.dto";
 import { UsersService } from "modules/users/users.service";
 import { LoginUserDto } from "modules/auth/dto/login-user.dto";
 import { SharedService } from "modules/shared/shared.service";
 import { AccessToken } from "modules/auth/entities/access-token.entity";
-import { FarmsService } from "./farms.service";
+import { FarmsService } from "../farms.service";
+import { UpdateFarmDto } from "../dto/update-farm-dto";
 
-describe("UsersController", () => {
+describe("FarmsController", () => {
   let app: Express;
   let agent: SuperAgentTest;
   let server: Server;
@@ -71,8 +72,9 @@ describe("UsersController", () => {
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
     const loginDto: LoginUserDto = { email: "user@test.com", password: "password" };
     jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
-    const createFarmDto: CreateFarmDto = { name: "AAA", address: "BBB", size: "1234", yield: 250 };
+    const createFarmDto: CreateFarmDto = { name: "AAA", address: "Herning", size: "1234", yield: 250 };
     const createFarm = async (id: string, createFarmDto: CreateFarmDto) => farmsService.create(id, createFarmDto)
+    const updateFarmDto: UpdateFarmDto = { name: "BBB" };
 
     it("should update a farm", async () => {
       const createdUser = await createUser({ ...loginDto, address: "kunt furbo" });
@@ -81,8 +83,8 @@ describe("UsersController", () => {
       const { id: farmId } = createdFarm;
       const loginRes = await agent.post("/api/v1/auth/login").send(loginDto);
       const { token } = loginRes.body as AccessToken;
-      const res = await agent.patch(`/api/v1/farms/${farmId}`).set("Authorization", `Bearer ${token}`).send({ address: "CCC" });
-      
+      const res = await agent.patch(`/api/v1/farms/${farmId}`).set("Authorization", `Bearer ${token}`).send(updateFarmDto);
+
       expect(res.statusCode).toBe(204);
     })
   })
@@ -91,10 +93,10 @@ describe("UsersController", () => {
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
     const loginDto: LoginUserDto = { email: "user@test.com", password: "password" };
     jest.spyOn(SharedService as any, "getGeo").mockReturnValueOnce({ data: { results: [{ geometry: { location: { lat: 234, lng: 324 }} }] }});
-    const createFarmDto: CreateFarmDto = { name: "AAA", address: "BBB", size: "1234", yield: 250 };
+    const createFarmDto: CreateFarmDto = { name: "AAA", address: "Herning", size: "1234", yield: 250 };
     const createFarm = async (id: string, createFarmDto: CreateFarmDto) => farmsService.create(id, createFarmDto)
 
-    it("should update a farm", async () => {
+    it("should delete a farm", async () => {
       const createdUser = await createUser({ ...loginDto, address: "kunt furbo" });
       const { id } = createdUser;
       const createdFarm = await createFarm(id, createFarmDto);

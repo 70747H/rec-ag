@@ -29,8 +29,8 @@ export class FarmsController {
     public async create(req: CustomRequest, res: Response, next: NextFunction) {
         try {
             const { id } = req.token;
-            const farms = await this.farmsService.create(id, req.body as CreateFarmDto);
-            res.status(201).send(farms);
+            const farm = await this.farmsService.create(id, req.body as CreateFarmDto);
+            res.status(201).send(farm);
         } catch (error) {
             next(error);
         }
